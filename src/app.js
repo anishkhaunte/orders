@@ -22,7 +22,7 @@ app.use(modules.middlewares.cors)
 
 app.use('/v1', routes)
 
-app.use('/', express.static(path.join(__dirname, '/static')))
+
 
 /*
 if (process.env.NODE_ENV !== 'production') {

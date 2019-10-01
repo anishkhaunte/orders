@@ -11,6 +11,7 @@ const app = require('./app')
   if (require.main === module) {
     app.listen(app.config.port, () => console.log(`Server started and listening on port ${app.config.port}`))
 
+    
     // start webserver on port 8080
     var server =  http.createServer(app);
 
