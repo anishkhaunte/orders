@@ -1,10 +1,13 @@
 
 
-function assertBehavior( behavior, currentStatus,...expectedStatuses) {
-  if (expectedStatuses.includes(currentStatus)) {
-    throw new InvalidBehaviorForStateError(behavior, {
-      currentStatus,
-      expectedStatuses,
+module.exports = {
+
+  assertBehavior( behavior, currentStatus,...expectedStatuses) {
+    return new Promise((resolve, reject)=>{
+      if ((expectedStatuses.includes(currentStatus))) {
+        return resolve({});
+      }
+      return reject({'message': behavior});
     });
   }
 }

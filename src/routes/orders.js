@@ -50,7 +50,6 @@ router.get('/', function (req, res, next) {
         res.success(orders);
       }).catch(function (err) {
         logError(err)
-        console.log(err)
         //return res.serverError()
       }).done()
   })
@@ -69,11 +68,12 @@ router.get('/', function (req, res, next) {
 */
 router.post('/:orderId/cancel', (req, res, next) =>
   new Promise((reject, resolve) => {
-    console.log("Inside the cancel API");
-    //TODO: DO the entire thing
     let order = req.order;
-    return req.app.models.Order.update({ '_id': order._id }, { $set: { 'status': 'cancelled' } }, {})
-      .then(function (order) {
+    return modules.transition.assertBehavior("cancelOrder", order.status, CONST.ORDER_STATUES.CREATE)
+      .then(() => {
+        //TODO: DO the entire thing
+        return req.app.models.Order.update({ '_id': order._id }, { $set: { 'status': CONST.ORDER_STATUES.CANCEL } }, {})
+      }).then(function (order) {
         res.success({ order }, HTTP_STATUS_CODES.OK);
       }).catch(function (err) {
         logError(err);
@@ -84,11 +84,13 @@ router.post('/:orderId/cancel', (req, res, next) =>
 
 router.post('/:orderId/confirm', (req, res, next) =>
   new Promise((reject, resolve) => {
-    console.log("Inside the confirm API");
-    //TODO: DO the entire thing
     let order = req.order;
-    return req.app.models.Order.update({ '_id': order._id }, { $set: { 'status': 'confirmed' } }, {})
-      .then(function (order) {
+    return modules.transition.assertBehavior("confirmOrder", order.status, CONST.ORDER_STATUES.CREATE)
+      .then(() => {
+        //TODO: DO the entire thing
+
+        return req.app.models.Order.update({ '_id': order._id }, { $set: { 'status': CONST.ORDER_STATUES.CONFIRM } }, {})
+      }).then(function (order) {
         res.success({ order }, HTTP_STATUS_CODES.OK);
       }).catch(function (err) {
         logError(err);
@@ -110,29 +112,30 @@ router.post('/', (req, res, next) =>
     //TODO: Check the customer name validation and the status value(creation)
     //TODO: better catch block handling by refrring to other examples
     //TODO : rejecting the promise (state machine)
+    return modules.transition.assertBehavior("addOrder", CONST.ORDER_STATUES.CREATE, CONST.ORDER_STATUES.CREATE)
+      .then(() => {
 
-    let pin = modules.shortener.createShortHash();
+        let pin = modules.shortener.createShortHash();
 
-    const order = new req.app.models.Order({
-      customer: req.body.first_name,
-      discountCode: req.body.discountCode || undefined,
-      description: req.body.description || undefined,
-      pin: pin,
-      status: req.body.status
-    })
-    return order.save().then((order) => {
-      //TODO: publish the message that order created
-      let paymentObj = {
-        order: order
-      };
+        const order = new req.app.models.Order({
+          customer: req.body.first_name,
+          discountCode: req.body.discountCode || undefined,
+          description: req.body.description || undefined,
+          pin: pin,
+          status: req.body.status || CONST.ORDER_STATUES.CREATE
+        });
+        return order.save();
+      }).then((order) => {
+        //TODO: publish the message that order created
+        let paymentObj = {
+          order: order
+        };
 
-      modules.publisher.publish(PAYMENT_CHANNEL_NAME, JSON.stringify(paymentObj));
-      //return res.success();
-      return res.success({ order }, HTTP_STATUS_CODES.CREATED);
-    }).catch(function (err) {
-    
-      logError(err)
-    }).done()
+        modules.publisher.publish(PAYMENT_CHANNEL_NAME, JSON.stringify(paymentObj));
+        return res.success({ order }, HTTP_STATUS_CODES.CREATED);
+      }).catch(function (err) {
+        logError(err);
+      }).done();
   })
 )
 

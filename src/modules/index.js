@@ -6,7 +6,8 @@ module.exports = {
     },
     publisher: require('./publish'),
     subscriber: require('./subscribe'),
-    shortener: require('./shortener')  
+    shortener: require('./shortener'),
+    transition: require('./transition')  
 }
 /*
 var fs = require('fs');

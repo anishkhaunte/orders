@@ -22,6 +22,12 @@ global.include = file => require(`${fullPath(file)}`)
 global.allmodels = {};
 
 global.CONST = {
+  ORDER_STATUES :{
+    CREATE: 'created',
+    CONFIRM: 'confirmed',
+    DELIVER: 'delivered',
+    CANCEL: 'cancelled'
+  },
   DB_RECORD: {
     ACTIVE: 1,
     INACTIVE: 2,
@@ -37,25 +43,6 @@ global.CONST = {
   REQUEST_METHOD: {
     POST: 'POST',
     GET: 'GET'
-  },
-  APPROVAL_TYPE: {
-    PENDING: 0,
-    APPROVED: 1
-  }
-}
-
-global.CONST.ACCESS = {
-  USERS: {
-    CREATE: [  CONST.ROLE.ADMIN ],
-    READ: [ CONST.ROLE.ADMIN, CONST.ROLE.ACCOUNT_MANAGER, CONST.ROLE.EMPLOYEE ],
-    UPDATE: [ CONST.ROLE.ADMIN, CONST.ROLE.ACCOUNT_MANAGER, CONST.ROLE.EMPLOYEE ],
-    DELETE: [ CONST.ROLE.ADMIN ]
-  },
-  MANAGEMENT: {
-    CREATE: [  CONST.ROLE.ADMIN, CONST.ROLE.ACCOUNT_MANAGER ],
-    READ: [ CONST.ROLE.ADMIN ],
-    UPDATE: [ CONST.ROLE.ADMIN ],
-    DELETE: [ CONST.ROLE.ADMIN ]
   }
 }
 

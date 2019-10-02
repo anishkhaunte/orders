@@ -25,6 +25,8 @@ module.exports = function (req, res, next) {
 
   res.success = function (data = null, code) {
     if (code == null) { code = HTTP_STATUS_CODES.OK }
+    console.log("The while data");
+    console.log(data);
     return res.sendResponse(code, {
       status: true,
       data

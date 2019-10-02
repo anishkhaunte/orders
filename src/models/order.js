@@ -18,8 +18,8 @@ const OrderSchema = new Schema({
   status: {
     type: String,
     required: true,
-    default: 'created',
-    enum:['created', 'confirmed', 'delivered', 'cancelled']
+    default: CONST.ORDER_STATUES.CREATE,
+    enum: Object.values(CONST.ORDER_STATUES)
   }
 
 }, {
