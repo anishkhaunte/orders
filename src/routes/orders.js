@@ -47,7 +47,7 @@ router.get('/', function (req, res, next) {
   new Promise((reject, resolve) => {
     return req.app.models.Order.find(where, {}, queryOpts).exec()
       .then(function (orders) {
-        res.success(orders);
+        res.success({'orders':orders});
       }).catch(function (err) {
         logError(err)
         //return res.serverError()
@@ -72,7 +72,7 @@ router.post('/:orderId/cancel', (req, res, next) =>
     return modules.transition.assertBehavior("cancelOrder", order.status, CONST.ORDER_STATUES.CREATE)
       .then(() => {
         //TODO: DO the entire thing
-        return req.app.models.Order.update({ '_id': order._id }, { $set: { 'status': CONST.ORDER_STATUES.CANCEL } }, {})
+        return req.app.models.Order.findOneAndUpdate({ '_id': order._id }, { $set: { 'status': CONST.ORDER_STATUES.CANCEL } }, {new:true})
       }).then(function (order) {
         res.success({ order }, HTTP_STATUS_CODES.OK);
       }).catch(function (err) {
@@ -89,7 +89,7 @@ router.post('/:orderId/confirm', (req, res, next) =>
       .then(() => {
         //TODO: DO the entire thing
 
-        return req.app.models.Order.update({ '_id': order._id }, { $set: { 'status': CONST.ORDER_STATUES.CONFIRM } }, {})
+        return req.app.models.Order.findOneAndUpdate({ '_id': order._id }, { $set: { 'status': CONST.ORDER_STATUES.CONFIRM } }, {new :true})
       }).then(function (order) {
         res.success({ order }, HTTP_STATUS_CODES.OK);
       }).catch(function (err) {
