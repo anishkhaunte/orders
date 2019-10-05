@@ -89,21 +89,9 @@ router.post('/:orderId/confirm', (req, res, next) =>
       }).done();
   })
 )
-/*
-@api {POST} /orders/ Provides a normal user to request for write access
-@apiName Approve
-@apiGroup Management
 
-@apiParam {String} [user_id]
-
-@apiSuccess {Boolean} status true
-@apiSuccess {Object} data
-*/
 router.post('/', (req, res, next) =>
   new Promise((reject, resolve) => {
-    //TODO: Check the customer name validation and the status value(creation)
-    //TODO: better catch block handling by refrring to other examples
-    //TODO : rejecting the promise (state machine)
     return modules.transition.assertBehavior("addOrder", CONST.ORDER_STATUES.CREATE, CONST.ORDER_STATUES.CREATE)
       .then(() => {
         if(!req.body.first_name)
