@@ -12,23 +12,16 @@ router.param('orderId', (req, res, next, id) =>
           return res.notFound()
         } else {
           req.order = order;
-          return next()
+          return next();
         }
       }).catch(function (err) {
-        logError(err)
+        logError(err);
         return next(err);
-      }).done()
+      }).done();
   })
 )
 
-/*
-@api {POST} /management/requests/list fetch list of all pending requests
-@apiName List
-@apiGroup Management
 
-@apiSuccess {Boolean} status true
-@apiSuccess {Object} data
-*/
 router.get('/', function (req, res, next) {
   let queryOpts
   const where = {}
@@ -41,7 +34,7 @@ router.get('/', function (req, res, next) {
       limit: CONST.DEFAULT_PAGINATION_LIMIT
     }
   } else {
-    queryOpts = {}
+    queryOpts = {};
   }
 
   new Promise((reject, resolve) => {
@@ -49,23 +42,14 @@ router.get('/', function (req, res, next) {
       .then(function (orders) {
         res.success({'orders':orders});
       }).catch(function (err) {
-        logError(err)
+        logError(err);
         //return res.serverError()
-      }).done()
+      }).done();
   })
 })
 
 
-/*
-@api {POST} /orders/request_access Provides a normal user to request for write access
-@apiName Request
-@apiGroup Management
 
-@apiParam {String} [user_id]
-
-@apiSuccess {Boolean} status true
-@apiSuccess {Object} data
-*/
 router.post('/:orderId/cancel', (req, res, next) =>
   new Promise((reject, resolve) => {
     let order = req.order;
@@ -75,10 +59,10 @@ router.post('/:orderId/cancel', (req, res, next) =>
       }).then(function (order) {
         res.success({ order }, HTTP_STATUS_CODES.OK);
       }).catch(function (err) {
-        if (err == null) { err = Error() }
+        if (err == null) { err = Error(); }
         logError(err)
         switch (err.name) {
-          case 'cancelOrder': return res.forbidden("Action not allowed")
+          case 'cancelOrder': return res.forbidden("Action not allowed");
           default: return res.serverError()
         }
       }).done();
@@ -93,13 +77,14 @@ router.post('/:orderId/confirm', (req, res, next) =>
       .then(() => {
         return req.app.models.Order.findOneAndUpdate({ '_id': order._id }, { $set: { 'status': CONST.ORDER_STATUES.CONFIRM } }, {new :true})
       }).then(function (order) {
+        modules.transition.deliverOrder(order);
         res.success({ order }, HTTP_STATUS_CODES.OK);
       }).catch(function (err) {
         if (err == null) { err = Error() }
         logError(err)
         switch (err.name) {
           case 'confirmOrder': return res.forbidden("Action not allowed")
-          default: return res.serverError()
+          default: return res.serverError();
         }
       }).done();
   })
@@ -155,6 +140,12 @@ router.post('/', (req, res, next) =>
 router.get('/:orderId', function (req, res, next) {
   let order = req.order
   return res.success({ order }, HTTP_STATUS_CODES.CREATED)
+})
+
+router.get('/:orderId/status', function (req, res, next) {
+  let order = req.order;
+  let status = order.status;
+  return res.success({ status }, HTTP_STATUS_CODES.OK)
 })
 
 module.exports = router

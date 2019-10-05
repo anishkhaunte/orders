@@ -17,7 +17,6 @@ app.models = include('models')
 app.use(modules.middlewares.response)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-//app.use(modules.middlewares.logger.request)
 app.use(modules.middlewares.cors)
 
 app.use('/v1', routes)

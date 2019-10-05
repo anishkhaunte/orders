@@ -10,32 +10,32 @@ redis.on("message", function (channel, message) {
 
   console.log("Receive message %s from channel %s", message, channel);
   message = JSON.parse(message);
-  
+  var httpMethod = "";
   let order = message.order;
-  //TODO: confirm or decline the order depending on the status of the order
+
   if (order.status === 0)
-    console.log("Order is declined: call the cancel API");
+    httpMethod = "cancel";
   else
-    console.log("Order is success: call the confirm API");
-  let body = {};
+    httpMethod = "confirm";
+
   request({
-    uri: "http://localhost:3000/v1/orders/" + order._id+"/confirm",
+    uri: "http://localhost:3000/v1/orders/" + order._id + "/" + httpMethod,
     method: 'POST',
     gzip: true,
     headers: {
       'Content-Type': 'application/json'
     },
-    json: body
+    json: {}
 
   },
     function (error, res) {
       if (res && res.statusCode === 200 && res.body) {
         //return resolve(payload);
-        console.log("Sucess is here");
+        console.log("Order processed");
       } else {
-        console.log("It did not");
+        console.log("Order not processed");
         //return reject({ 'customCode': 400, 'message': "DOMAINLOGINERROR", 'errors': "Bad request" })
       }
     });
-  
+
 });
