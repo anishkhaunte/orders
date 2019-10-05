@@ -11,12 +11,12 @@ router.param('orderId', (req, res, next, id) =>
         if (!order) {
           return res.notFound()
         } else {
-          req.order = order
+          req.order = order;
           return next()
         }
       }).catch(function (err) {
         logError(err)
-        return next(err)
+        return next(err);
       }).done()
   })
 )
@@ -71,12 +71,16 @@ router.post('/:orderId/cancel', (req, res, next) =>
     let order = req.order;
     return modules.transition.assertBehavior("cancelOrder", order.status, CONST.ORDER_STATUES.CREATE)
       .then(() => {
-        //TODO: DO the entire thing
         return req.app.models.Order.findOneAndUpdate({ '_id': order._id }, { $set: { 'status': CONST.ORDER_STATUES.CANCEL } }, {new:true})
       }).then(function (order) {
         res.success({ order }, HTTP_STATUS_CODES.OK);
       }).catch(function (err) {
-        logError(err);
+        if (err == null) { err = Error() }
+        logError(err)
+        switch (err.name) {
+          case 'cancelOrder': return res.forbidden("Action not allowed")
+          default: return res.serverError()
+        }
       }).done();
   })
 )
@@ -87,13 +91,16 @@ router.post('/:orderId/confirm', (req, res, next) =>
     let order = req.order;
     return modules.transition.assertBehavior("confirmOrder", order.status, CONST.ORDER_STATUES.CREATE)
       .then(() => {
-        //TODO: DO the entire thing
-
         return req.app.models.Order.findOneAndUpdate({ '_id': order._id }, { $set: { 'status': CONST.ORDER_STATUES.CONFIRM } }, {new :true})
       }).then(function (order) {
         res.success({ order }, HTTP_STATUS_CODES.OK);
       }).catch(function (err) {
-        logError(err);
+        if (err == null) { err = Error() }
+        logError(err)
+        switch (err.name) {
+          case 'confirmOrder': return res.forbidden("Action not allowed")
+          default: return res.serverError()
+        }
       }).done();
   })
 )
@@ -114,7 +121,8 @@ router.post('/', (req, res, next) =>
     //TODO : rejecting the promise (state machine)
     return modules.transition.assertBehavior("addOrder", CONST.ORDER_STATUES.CREATE, CONST.ORDER_STATUES.CREATE)
       .then(() => {
-
+        if(!req.body.first_name)
+          return Promise.reject({'name':'MissingName'});
         let pin = modules.shortener.createShortHash();
 
         const order = new req.app.models.Order({
@@ -126,7 +134,6 @@ router.post('/', (req, res, next) =>
         });
         return order.save();
       }).then((order) => {
-        //TODO: publish the message that order created
         let paymentObj = {
           order: order
         };
@@ -134,7 +141,13 @@ router.post('/', (req, res, next) =>
         modules.publisher.publish(PAYMENT_CHANNEL_NAME, JSON.stringify(paymentObj));
         return res.success({ order }, HTTP_STATUS_CODES.CREATED);
       }).catch(function (err) {
-        logError(err);
+        if (err == null) { err = Error() }
+        logError(err)
+        switch (err.name) {
+          case 'addOrder': return res.forbidden("Action not allowed")
+          case 'MissingName': return res.badRequest()
+          default: return res.serverError()
+        }
       }).done();
   })
 )

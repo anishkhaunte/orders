@@ -7,7 +7,7 @@ module.exports = {
       if ((expectedStatuses.includes(currentStatus))) {
         return resolve({});
       }
-      return reject({'message': behavior});
+      return reject({'name': behavior });
     });
   }
 }
