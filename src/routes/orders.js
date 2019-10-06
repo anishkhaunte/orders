@@ -2,6 +2,7 @@ const modules = include('modules')
 const express = require('express')
 const router = express.Router()
 const PAYMENT_CHANNEL_NAME = "payment";
+const sender = require('../sender');
 
 router.param('orderId', (req, res, next, id) =>
   new Promise((resolve, reject) => {
@@ -78,6 +79,7 @@ router.post('/:orderId/confirm', (req, res, next) =>
         return req.app.models.Order.findOneAndUpdate({ '_id': order._id }, { $set: { 'status': CONST.ORDER_STATUES.CONFIRM } }, {new :true})
       }).then(function (order) {
         modules.transition.deliverOrder(order);
+        //sender.sendMessage("Send message");
         res.success({ order }, HTTP_STATUS_CODES.OK);
       }).catch(function (err) {
         if (err == null) { err = Error() }
