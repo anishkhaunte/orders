@@ -13,4 +13,4 @@ Order application written in Node.js
 * Install mongo and pm2 (optional)
 * Clone the project
 * npm i (To install all dependencies)
-* To start:  <b>node src/server.js</b> or <b>pm2 start ecosystem.json5<b> (To keep it running as a process)
+* To start:  <b>node src/server.js</b> or <b>pm2 start ecosystem.json5</b> (To keep it running as a process)
