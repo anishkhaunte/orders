@@ -1,0 +1,44 @@
+{
+    apps : [
+      {
+        name: "API-Orders",
+        script: "src/server.js",
+        env: {},
+        env_development: {
+          NODE_ENV: "development"
+        },
+        env_staging: {
+          NODE_ENV: "staging"
+        },
+        env_production: {
+          NODE_ENV: "production"
+        }
+      }
+    ],
+    deploy : {
+      development : {
+        user : "ubuntu",
+        host : "",
+        ref  : "origin/develop",
+        repo : "",
+        path : "",
+        "post-deploy" : "./build.sh development"
+      },
+      staging : {
+        user : "ubuntu",
+        host : "",
+        ref  : "origin/staging",
+        repo : "",
+        path : "",
+        "post-deploy" : "./build.sh staging"
+      },
+      production : {
+        user : "ubuntu",
+        host : "",
+        ref  : "origin/master",
+        repo : "",
+        path : "",
+        "post-deploy" : "./build.sh production"
+      }
+    }
+  }
