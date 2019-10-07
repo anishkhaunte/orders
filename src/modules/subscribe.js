@@ -7,7 +7,11 @@ redis.subscribe("orderstatus", function (err, count) {
 });
 
 redis.on("message", function (channel, message) {
-
+  const config = include('config');
+  let baseUrl;
+  if (process.env.NODE_ENV !== 'production' || process.env.NODE_ENV !== 'development') {
+    baseUrl = config.app.apiProtocol+"://"+config.app.hostname+":"+config.port;
+  }
   console.log("Receive message %s from channel %s", message, channel);
   message = JSON.parse(message);
   var httpMethod = "";
@@ -19,7 +23,7 @@ redis.on("message", function (channel, message) {
     httpMethod = "confirm";
 
   request({
-    uri: "http://localhost:3000/v1/orders/" + order._id + "/" + httpMethod,
+    uri: baseUrl+"/v1/orders/" + order._id + "/" + httpMethod,
     method: 'POST',
     gzip: true,
     headers: {

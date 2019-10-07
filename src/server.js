@@ -8,8 +8,8 @@ const app = require('./app');
 // start webserver on port 8080
 var server = http.createServer(app);
 var wss = require('./socket.js').initialize(server);
-server.listen(8080, function () {
-  console.log('Listening on http://localhost:8080');
+server.listen(config.socketPort, function () {
+  console.log('Listening on'+ config.socketPort);
 });
 
 if (require.main === module) {
